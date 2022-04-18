@@ -1,3 +1,5 @@
+package client;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -7,6 +9,7 @@ import java.net.SocketTimeoutException;
 import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
 import javax.swing.JFileChooser;
+import config.Config;
 
 
 public class UDPClient{
@@ -54,9 +57,9 @@ public class UDPClient{
 
         try{
             socket.receive(recievePacket);
-            System.out.println("Serwer otrzyma³ wiadomoœæ");
+            System.out.println("Serwer otrzymaï¿½ wiadomoï¿½ï¿½");
         }catch (SocketTimeoutException ste){
-            System.out.println("Serwer nie odpowiedzia³, wiêc albo dosta³ wiadomoœæ albo nie...");
+            System.out.println("Serwer nie odpowiedziaï¿½, wiï¿½c albo dostaï¿½ wiadomoï¿½ï¿½ albo nie...");
         }
         
         

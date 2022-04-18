@@ -1,7 +1,10 @@
+package server;
+
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.ArrayList;
+import config.Config;
 
 public class UDPServer {
 
@@ -20,7 +23,7 @@ public class UDPServer {
         	int length = receivedPacket.getLength();
         	String message = new String(receivedPacket.getData(), 0, length, "utf8");
 
-        	// Port i host który wys³a³ nam zapytanie
+        	// Port i host ktï¿½ry wysï¿½aï¿½ nam zapytanie
         	InetAddress address = receivedPacket.getAddress();
         	int port = receivedPacket.getPort();
         	// check if the user is the same
