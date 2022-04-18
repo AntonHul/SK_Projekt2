@@ -9,10 +9,18 @@ import java.security.NoSuchAlgorithmException;
 import javax.swing.JFileChooser;
 
 
-public class UDPClient {
+public class UDPClient{
 
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
  
+    	
+        InetAddress serverAddress = InetAddress.getByName("localhost");
+
+        DatagramSocket socket = new DatagramSocket(); //Otwarcie gniazda
+
+
+    	
+    
     	// allow client to choose directory
         JFileChooser f = new JFileChooser();
         f.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY); 
@@ -29,20 +37,17 @@ public class UDPClient {
             System.out.println("File " + listOfFiles[i].getName());
             //calculate the checksum using external lib hash
             System.out.println("SHA512 : " + Snippet.hashFile(listOfFiles[i]));
+            //send the list of the files to server 
+            String message = Snippet.hashFile(listOfFiles[i]);
+            byte[] stringContents = message.getBytes("utf8"); 
+
+            DatagramPacket sentPacket = new DatagramPacket(stringContents, stringContents.length);
+            sentPacket.setAddress(serverAddress);
+            sentPacket.setPort(Config.PORT);
+            socket.send(sentPacket);
           }
         }
-       
-        String message = "tekst";
-        InetAddress serverAddress = InetAddress.getByName("localhost");
-        System.out.println(serverAddress);
-
-        DatagramSocket socket = new DatagramSocket(); //Otwarcie gniazda
-        byte[] stringContents = message.getBytes("utf8"); //Pobranie strumienia bajtów z wiadomosci
-
-        DatagramPacket sentPacket = new DatagramPacket(stringContents, stringContents.length);
-        sentPacket.setAddress(serverAddress);
-        sentPacket.setPort(Config.PORT);
-        socket.send(sentPacket);
+        
 
         DatagramPacket recievePacket = new DatagramPacket( new byte[Config.BUFFER_SIZE], Config.BUFFER_SIZE);
         socket.setSoTimeout(1010);
