@@ -15,9 +15,7 @@ public class UDPServer {
         //Otwarcie gniazda z okreslonym portem
         DatagramSocket datagramSocket = new DatagramSocket(Config.PORT);
         //creat list of checksums
-        CheckSum sum = new CheckSum("0","0","0");
         ArrayList<CheckSum> sums = new ArrayList<CheckSum>();
-        sums.add(sum);
         boolean exist = false;
         
         while (true) {
@@ -33,10 +31,11 @@ public class UDPServer {
         	// check if the checksum has already appeared
         	for (String st: sum_list) { 
         		for (CheckSum compare: sums) {
-        			if (compare.sum.equals(st) && exist != true) {
+        			if (compare.sum.equals(st)) {
         				compare.ips.add(address.toString());
         				compare.ports.add(Integer.toString(port));	
         				exist = true;	
+        				break;
         			}
         		}
         		if(!exist) {
@@ -47,10 +46,14 @@ public class UDPServer {
         		}
             
 
-
- 
         	// confirm receipt of the data
-        	byte[] byteResponse = "Send checksum of the required file \n".getBytes("utf8");
+        	String all_files = new String("All available files:");
+        	for (CheckSum file: sums) {
+        		all_files += file.sum + '\n';
+        	}
+        	all_files += "Send checksum of the required file \n";
+        	
+        	byte[] byteResponse = all_files.getBytes("utf8");
         	DatagramPacket response
                 = new DatagramPacket(
                     byteResponse, byteResponse.length, address, port);
@@ -65,13 +68,15 @@ public class UDPServer {
 
         	// check if such checksum exists
         	for (CheckSum compare: sums) {
-        		System.out.print(compare.sum); 
         		if (compare.sum.equals(message)) {
+        			byteResponse = "The following clients have the selected file: \n".getBytes("utf8");
+               	 	response = new DatagramPacket(byteResponse, byteResponse.length, address, port);
+               	 	datagramSocket.send(response);
         			for (String ip: compare.ips) {
-        			byteResponse = ip.getBytes("utf8");
-                	 response = new DatagramPacket(
-                            byteResponse, byteResponse.length, address, port);
-                	datagramSocket.send(response);
+        				ip += '\n';
+        				byteResponse = ip.getBytes("utf8");
+        				response = new DatagramPacket(byteResponse, byteResponse.length, address, port);
+        				datagramSocket.send(response);
         			}
         		}
             }
