@@ -15,7 +15,7 @@ import javax.swing.JFileChooser;
 
 
 import config.Config;
-import server.CheckSum;
+//import server.CheckSum;//nie wiem czemu to znalazlo sie w kiencie, ale kient nie moze z tego korzystac, bo to jest klasa serwera
 
 
 public class UDPClient{

@@ -13,4 +13,20 @@ public class CheckSum {
 	String sum;
 	ArrayList<String> ips = new ArrayList<String>();
 	ArrayList<String> ports = new ArrayList<String>();
+	
+	boolean compareIPs (String ip)
+	{
+		boolean exist = false;
+		
+		for(int i = 0; i < ips.size(); i++)
+		{
+			if(ips.get(i).equals(ip))
+			{
+				exist = true;
+				break;
+			}
+		}
+		
+		return exist;
+	}
 }

@@ -32,8 +32,10 @@ public class UDPServer {
         	for (String st: sum_list) { 
         		for (CheckSum compare: sums) {
         			if (compare.sum.equals(st)) {
-        				compare.ips.add(address.toString());
-        				compare.ports.add(Integer.toString(port));	
+        				if (compare.compareIPs(address.toString())) {
+        					compare.ips.add(address.toString());
+        					compare.ports.add(Integer.toString(port));	
+        				}
         				exist = true;	
         				break;
         			}
