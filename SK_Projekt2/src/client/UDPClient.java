@@ -48,7 +48,7 @@ public class UDPClient{
             //calculate the checksum using external lib hash
             System.out.println("SHA512 : " + Snippet.hashFile(listOfFiles[i]));
             //send the list of the files to server 
-            message += " " + Snippet.hashFile(listOfFiles[i]);
+            message += Snippet.hashFile(listOfFiles[i]) + " ";
  
           }
         }
