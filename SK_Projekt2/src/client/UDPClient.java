@@ -22,13 +22,9 @@ public class UDPClient{
 
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
  
-    	
         InetAddress serverAddress = InetAddress.getByName("localhost");
 
         DatagramSocket socket = new DatagramSocket(); //Otwarcie gniazda
-
-
-    	
     
     	// allow client to choose directory
         JFileChooser f = new JFileChooser();
@@ -60,26 +56,43 @@ public class UDPClient{
         sentPacket.setPort(Config.PORT);
         socket.send(sentPacket);
         
+        // receive the list of the checksums
         DatagramPacket recievePacket = new DatagramPacket( new byte[Config.BUFFER_SIZE], Config.BUFFER_SIZE);
         socket.receive(recievePacket);
         int length = recievePacket.getLength();
     	message = new String(recievePacket.getData(), 0, length, "utf8");
-    	System.out.print(message);  
+    	System.out.print(message); 
+    	
+    	// choose the required checksum
         Scanner sc = new Scanner(System.in);
-        String str= sc.nextLine();
-       
-        stringContents = str.getBytes("utf8"); 
+        String checkSum = sc.nextLine();
+        stringContents = checkSum.getBytes("utf8"); 
         sentPacket = new DatagramPacket(stringContents, stringContents.length);
         sentPacket.setAddress(serverAddress);
         sentPacket.setPort(Config.PORT);
         socket.send(sentPacket);
         
-        while(true) {
-        	recievePacket = new DatagramPacket( new byte[Config.BUFFER_SIZE], Config.BUFFER_SIZE);
-            socket.receive(recievePacket);
-            length = recievePacket.getLength();
-        	message = new String(recievePacket.getData(), 0, length, "utf8");
-        	System.out.print(message); 
+        
+        recievePacket = new DatagramPacket( new byte[Config.BUFFER_SIZE], Config.BUFFER_SIZE);
+        socket.receive(recievePacket);
+        length = recievePacket.getLength();
+        message = new String(recievePacket.getData(), 0, length, "utf8");
+        System.out.print(message); 
+        
+        if (message.equals("There is no file with such a checksum \n")){
+        	System.out.print("Try again ..."); 
+        } else {
+            // send the required checksum to the selected ip and port 
+            // in order to download it
+            stringContents = checkSum.getBytes("utf8"); 
+            sentPacket = new DatagramPacket(stringContents, stringContents.length);
+        	System.out.print("Enter the IP address and the port number of the user from whom you want to download the selected file: \n"); 
+        	Scanner ip = new Scanner(System.in);
+        	serverAddress = InetAddress.getByName(sc.nextLine());
+            sentPacket.setAddress(serverAddress);
+            sentPacket.setPort(Integer.valueOf(sc.nextLine()));
+            socket.send(sentPacket);
         }
+        
     }
 }

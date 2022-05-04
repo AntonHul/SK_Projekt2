@@ -135,20 +135,24 @@ public class UDPServer {
         	message = new String(receivedPacket.getData(), 0, length, "utf8");
 
         	// check if such checksum exists
+        	boolean check_sum = false;
         	for (CheckSum compare: sums) {
         		if (compare.sum.equals(message)) {
-        			byteResponse = "The following clients have the selected file: \n".getBytes("utf8");
-               	 	response = new DatagramPacket(byteResponse, byteResponse.length, address, port);
-               	 	datagramSocket.send(response);
-        			for (String ip: compare.ips) {
-        				ip += '\n';
-        				byteResponse = ip.getBytes("utf8");
-        				response = new DatagramPacket(byteResponse, byteResponse.length, address, port);
-        				datagramSocket.send(response);
-        			}
+        			message = "The following clients have the selected file: \n";
+        			check_sum = true;
+        			for (int i = 0; i < compare.ports.size(); i++) {
+        				message += compare.ips.get(i) + '\t' + compare.ports.get(i) + '\n';
+        		}
+    			byteResponse = message.getBytes("utf8");
+    			response = new DatagramPacket(byteResponse, byteResponse.length, address, port);
+    			datagramSocket.send(response);
         		}
             }
-        	
+        	if (!check_sum) {
+        		byteResponse = "There is no file with such a checksum \n".getBytes("utf8");
+				response = new DatagramPacket(byteResponse, byteResponse.length, address, port);
+				datagramSocket.send(response);
+        	}
         }
     }
 }
