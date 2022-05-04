@@ -84,13 +84,16 @@ public class UDPClient{
         } else {
             // send the required checksum to the selected ip and port 
             // in order to download it
-            stringContents = checkSum.getBytes("utf8"); 
+        	System.out.print("Enter the IP address and the port number of the user from whom you want to get the selected file: \n"); 
+        	sc = new Scanner(System.in);
+        	String ip = sc.nextLine();
+        	serverAddress = InetAddress.getByName(ip);
+            String port = sc.nextLine();
+            System.out.print("Enter the checksum of the file you want to get: \n"); 
+            stringContents = sc.nextLine().getBytes("utf8"); 
             sentPacket = new DatagramPacket(stringContents, stringContents.length);
-        	System.out.print("Enter the IP address and the port number of the user from whom you want to download the selected file: \n"); 
-        	Scanner ip = new Scanner(System.in);
-        	serverAddress = InetAddress.getByName(sc.nextLine());
             sentPacket.setAddress(serverAddress);
-            sentPacket.setPort(Integer.valueOf(sc.nextLine()));
+            sentPacket.setPort(Integer.valueOf(port));
             socket.send(sentPacket);
         }
         

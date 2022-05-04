@@ -1,5 +1,6 @@
 package server;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -46,14 +47,15 @@ public class UDPServer {
     		{
     			try
     			{
-    				Scanner sc = new Scanner(sumFile);
-    				sc.useDelimiter("\t");
-    				while(sc.hasNextLine())
+    				BufferedReader sc = new BufferedReader(new FileReader(sumFile));
+    				String scc = sc.readLine();
+    				while(scc != null)
     				{
-    					String fip = sc.next();
-    					String fport = sc.next();
-    					
+    					String[] ip_port = scc.split("\t");
+    					String fip = ip_port[0];
+    					String fport = ip_port[1];
     					sums.add(new CheckSum(sumFile.getName(), fip, fport));
+    					scc = sc.readLine();
     				}
     				sc.close();	
     			}
@@ -115,7 +117,7 @@ public class UDPServer {
         	
 
         	// confirm receipt of the data
-        	String all_files = new String("All available files:");
+        	String all_files = new String("All available files: \n");
         	for (CheckSum file: sums) {
         		all_files += file.sum + '\n';
         	}
