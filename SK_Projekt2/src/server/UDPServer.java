@@ -15,8 +15,73 @@ import java.util.Scanner;
 
 import config.Config;
 
-public class UDPServer {
-
+public class UDPServer
+{
+	String serverSumDir = "server/eGoat/sum";//plik do przechowywania sum i ip
+	ArrayList<CheckSum> sums = new ArrayList<CheckSum>();//lista sum
+	boolean exist = false;
+	
+	//konstruktor
+	public UDPServer()
+	{
+		
+	}
+	
+	//metody
+	boolean checkFileSystem(String path)//sprawdzenie czy istnieje plik do zapisu sum i ewentualnie wczytanie danych
+	{
+		File sumDir = new File(serverSumDir);
+		boolean ok = true;
+    	
+    	if(!(sumDir.exists()) || !(sumDir.isDirectory()))
+    	{
+    		System.out.println("Missing directory \"" + serverSumDir + "\"!\nCreating a new one!");
+    		boolean created = sumDir.mkdirs();
+    		
+    		if(created)
+    		{
+    			System.out.println("Created!");
+    		}
+    		else
+    		{
+    			System.out.println("Not created!");
+    			ok = false;
+    		}
+    	}
+    	else
+    	{
+    		System.out.println(serverSumDir + " - OK");
+    		File[] sumFilesList = sumDir.listFiles();
+    		
+    		for(File sumFile : sumFilesList)//zczytanie informacji z plikow sum do listy sum
+    		{
+    			try
+    			{
+    				BufferedReader sc = new BufferedReader(new FileReader(sumFile));
+    				String scc = sc.readLine();
+    				while(scc != null)
+    				{
+    					String[] ip_port = scc.split("\t");
+    					String fip = ip_port[0];
+    					String fport = ip_port[1];
+    					sums.add(new CheckSum(sumFile.getName(), fip, fport));
+    					scc = sc.readLine();
+    				}
+    				sc.close();	
+    			}
+    			catch(IOException e)
+    			{
+    				e.printStackTrace();
+    				ok = false;
+    			}
+    		}
+    	}
+		
+		return ok;
+	}
+	
+	
+	//main
     public static void main(String[] args) throws Exception{
     	String serverSumDir = "server/eGoat/sum";//plik do przechowywania sum i ip
     	
