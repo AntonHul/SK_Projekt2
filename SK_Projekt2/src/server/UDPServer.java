@@ -16,7 +16,16 @@ import java.util.concurrent.TimeUnit;
 
 import config.Config;
 
-public class UDPServer {
+public class UDPServer extends Thread
+{
+	DatagramSocket datagramSocket;
+	
+	String serverSumDir = "server/eGoat/sum";//plik do przechowywania sum i ip
+	ArrayList<CheckSum> sums = new ArrayList<CheckSum>();//lista sum
+	boolean exist = false;
+	public boolean serverRunning = true;
+	
+	
 
     public static void main(String[] args) throws Exception{
     	String serverSumDir = "server/eGoat/sum";//plik do przechowywania sum i ip
