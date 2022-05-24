@@ -93,7 +93,8 @@ public class UDPServer extends Thread
 			datagramSocket = new DatagramSocket(Config.PORT);
 			System.out.println("Server is running!");
 			
-			while (true) {
+			while (true)
+			{
 	        	DatagramPacket receivedPacket = new DatagramPacket( new byte[Config.BUFFER_SIZE], Config.BUFFER_SIZE);
 	        	datagramSocket.receive(receivedPacket);
 	        	int length = receivedPacket.getLength();
@@ -104,13 +105,16 @@ public class UDPServer extends Thread
 	        	int port = receivedPacket.getPort();
 
 	        	// check if the checksum has already appeared
-	        	for (String st: sum_list){ 
+	        	for (String st: sum_list)
+	        	{ 
 	        		boolean exist = false;
-	        		for (CheckSum compare: sums){
-	        			if (compare.sum.equals(st)){
-	        				if (compare.compareIPs(address.toString())){
-	        					compare.ips.add(address.toString());
-	        					compare.ports.add(Integer.toString(port));	
+	        		for (CheckSum compare: sums)
+	        		{
+	        			if (compare.sum.equals(st))
+	        			{
+	        				if (compare.compareIPs(address.toString()))
+	        				{
+	        					compare.ips.add(address.toString());	
 	        					
 	        					FileWriter fw = new FileWriter((serverSumDir + "/" + st),true);
 	        					fw.write(address.toString());
@@ -123,8 +127,9 @@ public class UDPServer extends Thread
 	        				break;
 	        			}
 	        		}
-	        		if(!exist){
-	        			CheckSum newsum = new CheckSum(st, address.toString(),Integer.toString(port));
+	        		if(!exist)
+	        		{
+	        			CheckSum newsum = new CheckSum(st, address.toString());
 	        			sums.add(newsum);
 	        			
 	        			//tworzenie nowego pliku sumy
@@ -146,7 +151,8 @@ public class UDPServer extends Thread
 
 	        	// confirm receipt of the data
 	        	String all_files = new String("All available files: \n");
-	        	for (CheckSum file: sums) {
+	        	for (CheckSum file: sums)
+	        	{
 	        		all_files += file.sum + '\n';
 	        	}
 	        	all_files += "Send checksum of the required file \n";
@@ -167,30 +173,32 @@ public class UDPServer extends Thread
 
 	        	// check if such checksum exists
 	        	boolean check_sum = false;
-	        	for (CheckSum compare: sums) {
-	        		if (compare.sum.equals(message)) {
+	        	for (CheckSum compare: sums)
+	        	{
+	        		if (compare.sum.equals(message))
+	        		{
 	        			message = "The following clients have the selected file: \n";
 	        			check_sum = true;
-	        			for (int i = 0; i < compare.ports.size(); i++) {
-	        				message += compare.ips.get(i) + '\t' + compare.ports.get(i) + '\n';
-	        		}
+	        			for (int i = 0; i < compare.ips.size(); i++)
+	        			{
+	        				message += compare.ips.get(i) + '\n';
+	        			}
 	    			byteResponse = message.getBytes("utf8");
 	    			response = new DatagramPacket(byteResponse, byteResponse.length, address, port);
 	    			datagramSocket.send(response);
 	        		}
 	            }
-	        	if (!check_sum) {
+	        	if (!check_sum)
+	        	{
 	        		byteResponse = "There is no file with such a checksum \n".getBytes("utf8");
 					response = new DatagramPacket(byteResponse, byteResponse.length, address, port);
 					datagramSocket.send(response);
 	        	}
 	        }
 		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
-	
-
-    public static void main(String[] args)
-    {
-        
-    }
 }
