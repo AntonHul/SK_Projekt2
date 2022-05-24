@@ -86,106 +86,111 @@ public class UDPServer extends Thread
 		return ok;
 	}
 	
+	public void run()
+	{
+		try
+		{
+			datagramSocket = new DatagramSocket(Config.PORT);
+			System.out.println("Server is running!");
+			
+			while (true) {
+	        	DatagramPacket receivedPacket = new DatagramPacket( new byte[Config.BUFFER_SIZE], Config.BUFFER_SIZE);
+	        	datagramSocket.receive(receivedPacket);
+	        	int length = receivedPacket.getLength();
+	        	String message = new String(receivedPacket.getData(), 0, length, "utf8");
+	        	String[] sum_list = message.split(" ");
+	        	// Port i host ktory wyslal nam zapytanie
+	        	InetAddress address = receivedPacket.getAddress();
+	        	int port = receivedPacket.getPort();
 
-    public static void main(String[] args) throws Exception{
-    	String serverSumDir = "server/eGoat/sum";//plik do przechowywania sum i ip
-    	
-    	//Otwarcie gniazda z okreslonym portem
-        DatagramSocket datagramSocket = new DatagramSocket(Config.PORT);
-        //creat list of checksums
-        ArrayList<CheckSum> sums = new ArrayList<CheckSum>();
+	        	// check if the checksum has already appeared
+	        	for (String st: sum_list){ 
+	        		boolean exist = false;
+	        		for (CheckSum compare: sums){
+	        			if (compare.sum.equals(st)){
+	        				if (compare.compareIPs(address.toString())){
+	        					compare.ips.add(address.toString());
+	        					compare.ports.add(Integer.toString(port));	
+	        					
+	        					FileWriter fw = new FileWriter((serverSumDir + "/" + st),true);
+	        					fw.write(address.toString());
+	        					fw.write('\t');
+	        					fw.write(Integer.toString(port));
+	        					fw.write('\n');
+	        					fw.close();
+	        				}
+	        				exist = true;	
+	        				break;
+	        			}
+	        		}
+	        		if(!exist){
+	        			CheckSum newsum = new CheckSum(st, address.toString(),Integer.toString(port));
+	        			sums.add(newsum);
+	        			
+	        			//tworzenie nowego pliku sumy
+	        			String filePath = (serverSumDir + "/" + st);
+	        			File file = new File(filePath);
+	        			file.createNewFile();
+	        			
+	        			FileWriter fw = new FileWriter(file);
+	        			fw.write(address.toString());
+	        			fw.write('\t');
+	        			fw.write(Integer.toString(port));
+	        			fw.write('\n');
+	        			fw.close();
+	        			
+	        			exist = false;
+	    			}
+	        	}
+	        	
+
+	        	// confirm receipt of the data
+	        	String all_files = new String("All available files: \n");
+	        	for (CheckSum file: sums) {
+	        		all_files += file.sum + '\n';
+	        	}
+	        	all_files += "Send checksum of the required file \n";
+	        	
+	        	byte[] byteResponse = all_files.getBytes("utf8");
+	        	DatagramPacket response
+	                = new DatagramPacket(
+	                    byteResponse, byteResponse.length, address, port);
+	        	datagramSocket.send(response);
+
+	        	
+	        	
+	        	// receive the checksum of a particular file
+	        	receivedPacket = new DatagramPacket(new byte[Config.BUFFER_SIZE], Config.BUFFER_SIZE);
+	        	datagramSocket.receive(receivedPacket);
+	        	length = receivedPacket.getLength();
+	        	message = new String(receivedPacket.getData(), 0, length, "utf8");
+
+	        	// check if such checksum exists
+	        	boolean check_sum = false;
+	        	for (CheckSum compare: sums) {
+	        		if (compare.sum.equals(message)) {
+	        			message = "The following clients have the selected file: \n";
+	        			check_sum = true;
+	        			for (int i = 0; i < compare.ports.size(); i++) {
+	        				message += compare.ips.get(i) + '\t' + compare.ports.get(i) + '\n';
+	        		}
+	    			byteResponse = message.getBytes("utf8");
+	    			response = new DatagramPacket(byteResponse, byteResponse.length, address, port);
+	    			datagramSocket.send(response);
+	        		}
+	            }
+	        	if (!check_sum) {
+	        		byteResponse = "There is no file with such a checksum \n".getBytes("utf8");
+					response = new DatagramPacket(byteResponse, byteResponse.length, address, port);
+					datagramSocket.send(response);
+	        	}
+	        }
+		}
+	}
+	
+
+    public static void main(String[] args)
+    {
         
-        while (true) {
-        	DatagramPacket receivedPacket = new DatagramPacket( new byte[Config.BUFFER_SIZE], Config.BUFFER_SIZE);
-        	datagramSocket.receive(receivedPacket);
-        	int length = receivedPacket.getLength();
-        	String message = new String(receivedPacket.getData(), 0, length, "utf8");
-        	String[] sum_list = message.split(" ");
-        	// Port i host ktory wyslal nam zapytanie
-        	InetAddress address = receivedPacket.getAddress();
-        	int port = receivedPacket.getPort();
-
-        	// check if the checksum has already appeared
-        	for (String st: sum_list){ 
-        		boolean exist = false;
-        		for (CheckSum compare: sums){
-        			if (compare.sum.equals(st)){
-        				if (compare.compareIPs(address.toString())){
-        					compare.ips.add(address.toString());
-        					compare.ports.add(Integer.toString(port));	
-        					
-        					FileWriter fw = new FileWriter((serverSumDir + "/" + st),true);
-        					fw.write(address.toString());
-        					fw.write('\t');
-        					fw.write(Integer.toString(port));
-        					fw.write('\n');
-        					fw.close();
-        				}
-        				exist = true;	
-        				break;
-        			}
-        		}
-        		if(!exist){
-        			CheckSum newsum = new CheckSum(st, address.toString(),Integer.toString(port));
-        			sums.add(newsum);
-        			
-        			//tworzenie nowego pliku sumy
-        			String filePath = (serverSumDir + "/" + st);
-        			File file = new File(filePath);
-        			file.createNewFile();
-        			
-        			FileWriter fw = new FileWriter(file);
-        			fw.write(address.toString());
-        			fw.write('\t');
-        			fw.write(Integer.toString(port));
-        			fw.write('\n');
-        			fw.close();
-        			
-        			exist = false;
-    			}
-        	}
-        	
-
-        	// confirm receipt of the data
-        	String all_files = new String("All available files: \n");
-        	for (CheckSum file: sums) {
-        		all_files += file.sum + '\n';
-        	}
-        	all_files += "Send checksum of the required file \n";
-        	
-        	byte[] byteResponse = all_files.getBytes("utf8");
-        	DatagramPacket response
-                = new DatagramPacket(
-                    byteResponse, byteResponse.length, address, port);
-        	datagramSocket.send(response);
-
-        	
-        	
-        	// receive the checksum of a particular file
-        	receivedPacket = new DatagramPacket(new byte[Config.BUFFER_SIZE], Config.BUFFER_SIZE);
-        	datagramSocket.receive(receivedPacket);
-        	length = receivedPacket.getLength();
-        	message = new String(receivedPacket.getData(), 0, length, "utf8");
-
-        	// check if such checksum exists
-        	boolean check_sum = false;
-        	for (CheckSum compare: sums) {
-        		if (compare.sum.equals(message)) {
-        			message = "The following clients have the selected file: \n";
-        			check_sum = true;
-        			for (int i = 0; i < compare.ports.size(); i++) {
-        				message += compare.ips.get(i) + '\t' + compare.ports.get(i) + '\n';
-        		}
-    			byteResponse = message.getBytes("utf8");
-    			response = new DatagramPacket(byteResponse, byteResponse.length, address, port);
-    			datagramSocket.send(response);
-        		}
-            }
-        	if (!check_sum) {
-        		byteResponse = "There is no file with such a checksum \n".getBytes("utf8");
-				response = new DatagramPacket(byteResponse, byteResponse.length, address, port);
-				datagramSocket.send(response);
-        	}
-        }
     }
 }
