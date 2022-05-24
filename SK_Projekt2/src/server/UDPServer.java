@@ -12,6 +12,7 @@ import java.net.InetAddress;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
 import config.Config;
 
@@ -24,7 +25,6 @@ public class UDPServer {
         DatagramSocket datagramSocket = new DatagramSocket(Config.PORT);
         //creat list of checksums
         ArrayList<CheckSum> sums = new ArrayList<CheckSum>();
-        boolean exist = false;
     	
     	//sprawdzenie czy istnieje plik do zapisu sum
     	File sumDir = new File(serverSumDir);
@@ -78,6 +78,7 @@ public class UDPServer {
 
         	// check if the checksum has already appeared
         	for (String st: sum_list){ 
+        		boolean exist = false;
         		for (CheckSum compare: sums){
         			if (compare.sum.equals(st)){
         				if (compare.compareIPs(address.toString())){
@@ -128,6 +129,7 @@ public class UDPServer {
                 = new DatagramPacket(
                     byteResponse, byteResponse.length, address, port);
         	datagramSocket.send(response);
+
         	
         	
         	// receive the checksum of a particular file
