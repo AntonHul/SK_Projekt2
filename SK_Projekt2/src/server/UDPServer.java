@@ -93,7 +93,7 @@ public class UDPServer extends Thread
 			datagramSocket = new DatagramSocket(Config.PORT);
 			System.out.println("Server is running!");
 			
-			while (true)
+			while(serverRunning)
 			{
 	        	DatagramPacket receivedPacket = new DatagramPacket( new byte[Config.BUFFER_SIZE], Config.BUFFER_SIZE);
 	        	datagramSocket.receive(receivedPacket);
@@ -118,8 +118,8 @@ public class UDPServer extends Thread
 	        					
 	        					FileWriter fw = new FileWriter((serverSumDir + "/" + st),true);
 	        					fw.write(address.toString());
-	        					fw.write('\t');
-	        					fw.write(Integer.toString(port));
+//	        					fw.write('\t');
+//	        					fw.write(Integer.toString(port));
 	        					fw.write('\n');
 	        					fw.close();
 	        				}
@@ -139,8 +139,8 @@ public class UDPServer extends Thread
 	        			
 	        			FileWriter fw = new FileWriter(file);
 	        			fw.write(address.toString());
-	        			fw.write('\t');
-	        			fw.write(Integer.toString(port));
+//	        			fw.write('\t');
+//	        			fw.write(Integer.toString(port));
 	        			fw.write('\n');
 	        			fw.close();
 	        			
@@ -195,10 +195,15 @@ public class UDPServer extends Thread
 					datagramSocket.send(response);
 	        	}
 	        }
+			
+			datagramSocket.close();
+			System.out.println("Server closed!");
 		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
 		}
+		
+		serverRunning = true;
 	}
 }
