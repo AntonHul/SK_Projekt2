@@ -25,6 +25,14 @@ public class UDPServer extends Thread
 	boolean exist = false;
 	public boolean serverRunning = true;
 	
+	//konstruktor
+	public UDPServer()
+	{
+		checkFileSystem(serverSumDir);
+		System.out.println("Server initiated!");
+	}
+	
+	//metody
 	
 
     public static void main(String[] args) throws Exception{
