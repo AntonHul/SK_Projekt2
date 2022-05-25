@@ -4,9 +4,11 @@ import java.util.ArrayList;
 
 public class CheckSum {
 	
+	/*
 	public CheckSum(String sum) {
 		this.sum = sum;	
 	}
+	*/
 	
 	public CheckSum(String sum, String ip) {
 		this.sum = sum;

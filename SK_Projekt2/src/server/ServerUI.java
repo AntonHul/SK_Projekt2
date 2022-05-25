@@ -14,6 +14,7 @@ import javax.swing.SwingUtilities;
 public class ServerUI extends JFrame
 {
 	UDPServer udpServer;
+	Thread ServerThread;
 	JButton btnON;
 	JButton btnOFF;
 	
@@ -23,47 +24,60 @@ public class ServerUI extends JFrame
 		this.setSize(800, 600);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		
+		udpServer = new UDPServer();
+		
 		JPanel mainPanel = new JPanel();
 		mainPanel.setLayout(new FlowLayout());
 		
 		btnON = new JButton("Server ON");
-		btnON.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
-				udpServer.serverRunning = true;
-				udpServer.start();
-				btnON.setEnabled(false);
-				btnOFF.setEnabled(true);
-			}
-		});
+		btnON.addActionListener(new ONlistener());
 		
 		btnOFF = new JButton("Server OFF");
-		btnOFF.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				udpServer.serverRunning = false;
-				btnON.setEnabled(true);
-				btnOFF.setEnabled(false);
-			}
-		});
+		btnOFF.addActionListener(new OFFlistener());
 		btnOFF.setEnabled(false);
 		
 		mainPanel.add(btnON);
 		mainPanel.add(btnOFF);
 		
 		this.add(BorderLayout.CENTER, mainPanel);
-		
-		udpServer = new UDPServer();
 	}
+	
+	
+	//klasy listenery
+	class ONlistener implements ActionListener
+	{
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			ServerThread = new Thread(udpServer);
+			udpServer.start();
+			ServerThread.start();
+			btnON.setEnabled(false);
+			btnOFF.setEnabled(true);
+		}
+	}
+	
+	class OFFlistener implements ActionListener
+	{
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			udpServer.stop();
+			btnOFF.setEnabled(false);
+			
+			while(ServerThread.isAlive()){}
+			
+			btnON.setEnabled(true);
+		}
+		
+	}
+	
 	
 	//main
 	public static void main(String[] args)
 	{
-		SwingUtilities.invokeLater(new Runnable() {
-			
+		SwingUtilities.invokeLater(new Runnable()
+		{
 			@Override
 			public void run()
 			{
