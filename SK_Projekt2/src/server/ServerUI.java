@@ -9,6 +9,8 @@ import java.net.SocketException;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
 public class ServerUI extends JFrame
@@ -17,6 +19,8 @@ public class ServerUI extends JFrame
 	Thread ServerThread;
 	JButton btnON;
 	JButton btnOFF;
+	JTextArea txtArea;
+	JScrollPane scrollPane;
 	
 	//konstruktor
 	ServerUI()
@@ -24,7 +28,13 @@ public class ServerUI extends JFrame
 		this.setSize(800, 600);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		
-		udpServer = new UDPServer();
+		txtArea = new JTextArea();
+		txtArea.setEditable(false);
+		txtArea.setLineWrap(true);
+		
+		scrollPane = new JScrollPane(txtArea);
+		
+		udpServer = new UDPServer(txtArea);
 		
 		JPanel mainPanel = new JPanel();
 		mainPanel.setLayout(new FlowLayout());
@@ -39,7 +49,8 @@ public class ServerUI extends JFrame
 		mainPanel.add(btnON);
 		mainPanel.add(btnOFF);
 		
-		this.add(BorderLayout.CENTER, mainPanel);
+		this.add(BorderLayout.NORTH, mainPanel);
+		this.add(BorderLayout.CENTER, scrollPane);
 	}
 	
 	
@@ -65,12 +76,12 @@ public class ServerUI extends JFrame
 			udpServer.stop();
 			btnOFF.setEnabled(false);
 			System.out.println("Server is closing! This might take 1 minute!");
+			txtArea.append("Server is closing! This might take 1 minute!\n");
 			
 			while(ServerThread.isAlive()){}
 			
 			btnON.setEnabled(true);
 		}
-		
 	}
 	
 	
