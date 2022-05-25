@@ -38,6 +38,11 @@ public class UDPClient extends Thread {
 	{
 		running = false;
 	}
+	
+	void sendFilesSHA(ArrayList<File_sha> Files)
+	{
+		Files_sha = Files;
+	}
     
     public void run()
     {

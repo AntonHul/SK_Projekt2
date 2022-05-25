@@ -29,13 +29,15 @@ public class UDPClient2 extends Thread
 	JButton btn;
 	String sendString;
 	ClientUI clientUI;
+	UDPClient client1;
 	
-	public UDPClient2(JTextArea textArea, JButton button, ClientUI ui)
+	public UDPClient2(JTextArea textArea, JButton button, ClientUI ui, UDPClient udpClient)
 	{
 		super();
 		txtArea = textArea;
 		btn = button;
 		clientUI = ui;
+		client1 = udpClient;
 		sendString = "";
 	}
 	
@@ -99,6 +101,8 @@ public class UDPClient2 extends Thread
 	            socket.send(sentPacket);
 	          }
 	        }
+	        
+	        client1.sendFilesSHA(Files_sha);
 			
 	        message = "#end#";
 	        stringContents = message.getBytes("utf8"); 
