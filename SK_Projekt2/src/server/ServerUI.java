@@ -23,7 +23,7 @@ public class ServerUI extends JFrame
 	JScrollPane scrollPane;
 	
 	//konstruktor
-	ServerUI()
+	public ServerUI()
 	{
 		this.setSize(800, 600);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -93,7 +93,6 @@ public class ServerUI extends JFrame
 			@Override
 			public void run()
 			{
-				
 				ServerUI ui = new ServerUI();
 				ui.setVisible(true);
 			}
