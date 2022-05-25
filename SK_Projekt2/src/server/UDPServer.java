@@ -1,25 +1,22 @@
 package server;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Scanner;
-import java.util.concurrent.TimeUnit;
+import javax.swing.JTextArea;
 
 import config.Config;
 
 public class UDPServer implements Runnable
 {
 	DatagramSocket datagramSocket;
+	JTextArea txtArea;
 	
 	String serverSumDir = "server/eGoat/sum";//plik do przechowywania sum i ip
 	ArrayList<CheckSum> sums = new ArrayList<CheckSum>();//lista sum
@@ -27,10 +24,12 @@ public class UDPServer implements Runnable
 	boolean serverRunning = false;
 	
 	//konstruktor
-	public UDPServer()
+	public UDPServer(JTextArea textArea)
 	{
+		txtArea = textArea;
 		checkFileSystem(serverSumDir);
 		System.out.println("Server initiated!");
+		txtArea.append("Server initiated!\n");
 	}
 	
 	//metody
@@ -52,21 +51,25 @@ public class UDPServer implements Runnable
     	if(!(sumDir.exists()) || !(sumDir.isDirectory()))
     	{
     		System.out.println("Missing directory \"" + path + "\"!\nCreating a new one!");
+    		txtArea.append("Missing directory \"" + path + "\"!\nCreating a new one!\n");
     		boolean created = sumDir.mkdirs();
     		
     		if(created)
     		{
     			System.out.println("Created!");
+    			txtArea.append("Created!\n");
     		}
     		else
     		{
     			System.out.println("Not created!");
+    			txtArea.append("Not created!\n");
     			ok = false;
     		}
     	}
     	else
     	{
     		System.out.println(path + " - OK");
+    		txtArea.append(path + " - OK\n");
     		File[] sumFilesList = sumDir.listFiles();
     		
     		for(File sumFile : sumFilesList)//zczytanie informacji z plikow sum do listy sum
@@ -97,6 +100,7 @@ public class UDPServer implements Runnable
 		{
 			datagramSocket = new DatagramSocket(Config.PORT);
 			System.out.println("Server is running!");
+			txtArea.append("Server is running!\n");
 			
 			while(serverRunning)
 			{
@@ -114,6 +118,7 @@ public class UDPServer implements Runnable
 		        	
 		        	System.out.print(address.toString());
 	        		System.out.println(" Connected!");
+	        		txtArea.append(address.toString() + " Connected!\n");
 	        		
 		        	if(message.equals("#start#"))
 		        	{
@@ -246,5 +251,6 @@ public class UDPServer implements Runnable
 			e.printStackTrace();
 		}
 		System.out.println("Server closed!");
+		txtArea.append("Server closed!\n");
 	}
 }
