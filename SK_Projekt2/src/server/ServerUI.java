@@ -64,6 +64,7 @@ public class ServerUI extends JFrame
 		{
 			udpServer.stop();
 			btnOFF.setEnabled(false);
+			System.out.println("Server is closing! This might take 1 minute!");
 			
 			while(ServerThread.isAlive()){}
 			

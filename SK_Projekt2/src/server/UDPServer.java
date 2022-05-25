@@ -101,67 +101,84 @@ public class UDPServer implements Runnable
 			while(serverRunning)
 			{
 	        	DatagramPacket receivedPacket = new DatagramPacket( new byte[Config.BUFFER_SIZE], Config.BUFFER_SIZE);
+	        	datagramSocket.setSoTimeout(1000);
+	        	
 	        	try
 	        	{
-	        		datagramSocket.setSoTimeout(1000);
 	        		datagramSocket.receive(receivedPacket);
 	        		int length = receivedPacket.getLength();
-	        		String message = new String(receivedPacket.getData(), 0, length, "utf8");
-	        		String[] sum_list = message.split(" ");
-	        		// Port i host ktory wyslal nam zapytanie
-	        		InetAddress address = receivedPacket.getAddress();
-	        		int port = receivedPacket.getPort();
-	        		
-	        		System.out.print(address.toString());
+		        	String message = new String(receivedPacket.getData(), 0, length, "utf8");
+		        	// Port i host ktory wyslal nam zapytanie
+		        	InetAddress address = receivedPacket.getAddress();
+		        	int port = receivedPacket.getPort();
+		        	
+		        	System.out.print(address.toString());
 	        		System.out.println(" Connected!");
 	        		
-	        		// check if the checksum has already appeared
-	        		for (String st: sum_list)
-	        		{ 
-	        			boolean exist = false;
-	        			for (CheckSum compare: sums)
-	        			{
-	        				if (compare.sum.equals(st))
-	        				{
-	        					if (!compare.compareIPs(address.toString()))
-	        					{
-	        						compare.ips.add(address.toString());	
-	        						
-	        						FileWriter fw = new FileWriter((serverSumDir + "/" + st),true);
-	        						fw.write(address.toString());
-	        						fw.write('\n');
-	        						fw.close();
-	        					}
-	        					exist = true;	
-	        					break;
-	        				}
-	        			}
-	        			if(!exist)
-	        			{
-	        				CheckSum newsum = new CheckSum(st, address.toString());
-	        				sums.add(newsum);
-	        				
-	        				//tworzenie nowego pliku sumy
-	        				String filePath = (serverSumDir + "/" + st);
-	        				File file = new File(filePath);
-	        				file.createNewFile();
-	        				
-	        				FileWriter fw = new FileWriter(file);
-	        				fw.write(address.toString());
-	        				fw.write('\n');
-	        				fw.close();
-	        				
-	        				exist = false;
-	        			}
-	        		}
-	        		
-	        		
-	        		// confirm receipt of the data
+		        	if(message.equals("#start#"))
+		        	{
+		        		try
+		        		{
+		        			datagramSocket.setSoTimeout(10000);
+			        		while(true)
+			        		{
+				        		datagramSocket.receive(receivedPacket);
+				        		length = receivedPacket.getLength();
+				        		message = new String(receivedPacket.getData(), 0, length, "utf8");
+				        		// Port i host ktory wyslal nam zapytanie
+				        		address = receivedPacket.getAddress();
+				        		port = receivedPacket.getPort();
+				        		
+				        		if(message.equals("#end#"))
+				        			break;
+				        		
+				        		// check if the checksum has already appeared
+			        			boolean exist = false;
+			        			for (CheckSum compare: sums)
+			        			{
+			        				if (compare.sum.equals(message))
+			        				{
+			        					if (!compare.compareIPs(address.toString()))
+			        					{
+			        						compare.ips.add(address.toString());	
+			        						
+			        						FileWriter fw = new FileWriter((serverSumDir + "/" + message),true);
+			        						fw.write(address.toString());
+			        						fw.write('\n');
+			        						fw.close();
+			        					}
+			        					exist = true;	
+			        					break;
+			        				}
+			        			}
+			        			if(!exist)
+			        			{
+			        				CheckSum newsum = new CheckSum(message, address.toString());
+			        				sums.add(newsum);
+			        				
+			        				//tworzenie nowego pliku sumy
+			        				String filePath = (serverSumDir + "/" + message);
+			        				File file = new File(filePath);
+			        				file.createNewFile();
+			        				
+			        				FileWriter fw = new FileWriter(file);
+			        				fw.write(address.toString());
+			        				fw.write('\n');
+			        				fw.close();
+			        				
+			        				exist = false;
+			        			}
+				        	}
+		        		}
+		        		catch(SocketTimeoutException e){}
+		        	}
+		        	
+		        	datagramSocket.setSoTimeout(1000);
+		        	
 	        		String all_files = new String("All available files: \n");
 	        		byte[] byteResponse = all_files.getBytes("utf8");
 	        		DatagramPacket response = new DatagramPacket(byteResponse, byteResponse.length, address, port);
 	        		datagramSocket.send(response);
-	        		Thread.sleep(100);
 	        		
 	        		for (CheckSum file: sums)
 	        		{
@@ -169,10 +186,14 @@ public class UDPServer implements Runnable
 	        			byteResponse = all_files.getBytes("utf8");
 	        			response = new DatagramPacket(byteResponse, byteResponse.length, address, port);
 		        		datagramSocket.send(response);
-		        		Thread.sleep(100);
 	        		}
-	        		all_files = "Send checksum of the required file \n\n";
 	        		
+	        		all_files = "Send checksum of the required file \n\n";
+	        		byteResponse = all_files.getBytes("utf8");
+	        		response = new DatagramPacket(byteResponse, byteResponse.length, address, port);
+	        		datagramSocket.send(response);
+	        		
+	        		all_files = "#CSumEnd#";
 	        		byteResponse = all_files.getBytes("utf8");
 	        		response = new DatagramPacket(byteResponse, byteResponse.length, address, port);
 	        		datagramSocket.send(response);

@@ -61,7 +61,15 @@ public class UDPClient extends Thread {
         File folder = new File(f.getSelectedFile().toString());
         listOfFiles = folder.listFiles();
         Files_sha = new ArrayList<File_sha>();
-        String message = "";
+        
+        String message = "#start#";
+        
+        byte[] stringContents = message.getBytes("utf8"); 
+        
+        DatagramPacket sentPacket = new DatagramPacket(stringContents, stringContents.length);
+        sentPacket.setAddress(serverAddress);
+        sentPacket.setPort(Config.PORT);
+        socket.send(sentPacket);
         
         for (int i = 0; i < listOfFiles.length; i++) {
           if (listOfFiles[i].isFile()) {
@@ -70,26 +78,44 @@ public class UDPClient extends Thread {
             String st = new String(Snippet.hashFile(listOfFiles[i]));
             System.out.println("SHA512 : " + st);
             //send the list of the files to server 
-            message += st + " ";
+            message = st;
             Files_sha.add(new File_sha(listOfFiles[i],st));
+            
+            stringContents = message.getBytes("utf8"); 
+            
+            sentPacket = new DatagramPacket(stringContents, stringContents.length);
+            sentPacket.setAddress(serverAddress);
+            sentPacket.setPort(Config.PORT);
+            socket.send(sentPacket);
           }
         }
 		
+        message = "#end#";
+        stringContents = message.getBytes("utf8"); 
         
-        byte[] stringContents = message.getBytes("utf8"); 
-        
-        
-        DatagramPacket sentPacket = new DatagramPacket(stringContents, stringContents.length);
+        sentPacket = new DatagramPacket(stringContents, stringContents.length);
         sentPacket.setAddress(serverAddress);
         sentPacket.setPort(Config.PORT);
         socket.send(sentPacket);
         
-        // receive the list of the checksums
         DatagramPacket recievePacket = new DatagramPacket( new byte[Config.BUFFER_SIZE], Config.BUFFER_SIZE);
         socket.receive(recievePacket);
         int length = recievePacket.getLength();
     	message = new String(recievePacket.getData(), 0, length, "utf8");
-    	System.out.print(message); 
+    	System.out.print(message);
+        
+        // receive the list of the checksums
+        while(true)
+        {
+	        recievePacket = new DatagramPacket( new byte[Config.BUFFER_SIZE], Config.BUFFER_SIZE);
+	        socket.receive(recievePacket);
+	        length = recievePacket.getLength();
+	    	message = new String(recievePacket.getData(), 0, length, "utf8");
+	    	if(message.equals("#CSumEnd#"))
+	    		break;
+	    	else
+	    		System.out.print(message);
+        }
     	
     	// choose the required checksum
         Scanner sc = new Scanner(System.in);
