@@ -40,7 +40,7 @@ public class ClientUI extends JFrame
 		txtField = new JTextField();
 		
 		udp1 = new UDPClient(txtArea);
-		udp2 = new UDPClient2(txtArea, sendBtn, this);
+		udp2 = new UDPClient2(txtArea, sendBtn, this, udp1);
 		
 		this.add(BorderLayout.CENTER, scrollPane);
 		JPanel panel = new JPanel();
