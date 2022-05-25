@@ -25,6 +25,7 @@ public class ServerUI extends JFrame
 	{
 		this.setSize(800, 600);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+		this.setTitle("eGoat Server");
 		
 		txtArea = new JTextArea();
 		txtArea.setEditable(false);

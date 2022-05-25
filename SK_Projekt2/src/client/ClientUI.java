@@ -27,6 +27,7 @@ public class ClientUI extends JFrame
 	{
 		this.setSize(800, 600);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+		this.setTitle("eGoat Client");
 		
 		txtArea = new JTextArea();
 		txtArea.setEditable(false);

@@ -125,7 +125,7 @@ public class UDPServer implements Runnable
 		        		try
 		        		{
 		        			datagramSocket.setSoTimeout(10000);
-			        		while(true)
+			        		while(serverRunning)
 			        		{
 				        		datagramSocket.receive(receivedPacket);
 				        		length = receivedPacket.getLength();
