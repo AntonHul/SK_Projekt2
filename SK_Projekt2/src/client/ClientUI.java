@@ -12,8 +12,6 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
-import server.ServerUI;
-
 public class ClientUI extends JFrame
 {
 	UDPClient udp1;

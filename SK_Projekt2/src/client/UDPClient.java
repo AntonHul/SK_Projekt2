@@ -1,29 +1,16 @@
 package client;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
-import java.net.SocketTimeoutException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Scanner;
-import java.util.concurrent.TimeUnit;
-import javax.swing.JFileChooser;
 import javax.swing.JTextArea;
 
 import config.Config;
