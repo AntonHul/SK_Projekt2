@@ -1,23 +1,28 @@
 package server;
 
+import java.awt.Frame;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.BindException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.concurrent.ExecutorService;
+
+import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
 
 import config.Config;
 
-public class UDPServer implements Runnable
+public class UDPServer implements Runnable 
 {
+
 	DatagramSocket datagramSocket;
 	JTextArea txtArea;
-	
 	String serverSumDir = "server/eGoat/sum";//plik do przechowywania sum i ip
 	ArrayList<CheckSum> sums = new ArrayList<CheckSum>();//lista sum
 	boolean exist = false;
@@ -98,6 +103,7 @@ public class UDPServer implements Runnable
 	{
 		try
 		{
+			
 			datagramSocket = new DatagramSocket(Config.PORT);
 			System.out.println("Server is running!");
 			txtArea.append("Server is running!\n");
@@ -243,8 +249,11 @@ public class UDPServer implements Runnable
 		        }
 		        catch(SocketTimeoutException e){}
 			}
-			
 			datagramSocket.close();
+		}
+		catch(BindException e2) {
+			JOptionPane.showMessageDialog(null, "The server is already running",  "Error", JOptionPane.ERROR_MESSAGE);
+			System.exit(0);
 		}
 		catch(Exception e)
 		{

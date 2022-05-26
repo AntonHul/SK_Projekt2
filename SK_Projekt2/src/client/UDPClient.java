@@ -5,12 +5,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.BindException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+
+import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
 
 import config.Config;
@@ -21,7 +24,6 @@ public class UDPClient extends Thread {
 	public static ArrayList<File_sha> Files_sha;
 	 public final static int SOCKET_PORT = 13267;
 	  public final static String SERVER = "127.0.0.1";
-	  public final static String FILE_TO_RECEIVED =  "C:/Users/anton/Desktop/test2.txt";
 	  public final static int FILE_SIZE = 6022386;
 	  static byte[] stringContents;
 	
@@ -31,6 +33,7 @@ public class UDPClient extends Thread {
 	public UDPClient(JTextArea textArea)
 	{
 		super();
+		checkFileSystem();
 		txtArea = textArea;
 	}
 	
@@ -44,6 +47,16 @@ public class UDPClient extends Thread {
 		Files_sha = Files;
 	}
     
+	void checkFileSystem()//sprawdzenie czy istnieje plik do zapisu sum i ewentualnie wczytanie danych
+	{
+		File sumDir = new File("client");
+
+    	if(!(sumDir.exists()) || !(sumDir.isDirectory()))
+    	{
+    		sumDir.mkdirs();
+    	}
+	}
+	
     public void run()
     {
     	while (running)
@@ -135,7 +148,10 @@ public class UDPClient extends Thread {
 			    	    }
 		    		}
 		    	}
-			}	
+			}	catch(BindException e2) {
+				JOptionPane.showMessageDialog(null, "The chosen port is already used",  "Error", JOptionPane.ERROR_MESSAGE);
+				System.exit(0);
+			}
 			catch (IOException e1)
 			{
 				e1.printStackTrace();

@@ -2,7 +2,9 @@ package client;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -11,6 +13,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
 
 import config.Config;
@@ -21,7 +24,7 @@ public class UDPClient2 extends Thread
 	public static ArrayList<File_sha> Files_sha;
 	 public final static int SOCKET_PORT = 13267;
 	  public final static String SERVER = "127.0.0.1";
-	  public final static String FILE_TO_RECEIVED =  "C:/Users/anton/Desktop/test2.txt";
+	  public final static String FILE_TO_RECEIVED =  "client/received_file.txt";
 	  public final static int FILE_SIZE = 6022386;
 	  static byte[] stringContents;
 	
@@ -62,21 +65,26 @@ public class UDPClient2 extends Thread
 	    	// allow client to choose directory
 	        JFileChooser f = new JFileChooser("C:/Users/anton/Desktop/");
 	        f.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY); 
-	        f.showSaveDialog(null);
+	        
 	        // show chosen directory in console
+	        String message;
+	        byte[] stringContents;
+	        DatagramPacket sentPacket;
+	         
+	        if (f.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
 	        System.out.println(f.getSelectedFile());
 	        txtArea.append(f.getSelectedFile().toString() + "\n");
-	        
+
 	        // save all filenames from the chosen directory
 	        File folder = new File(f.getSelectedFile().toString());
 	        listOfFiles = folder.listFiles();
 	        Files_sha = new ArrayList<File_sha>();
 	        
-	        String message = "#start#";
+	        message = "#start#";
 	        
-	        byte[] stringContents = message.getBytes("utf8"); 
+	        stringContents = message.getBytes("utf8"); 
 	        
-	        DatagramPacket sentPacket = new DatagramPacket(stringContents, stringContents.length);
+	        sentPacket = new DatagramPacket(stringContents, stringContents.length);
 	        sentPacket.setAddress(serverAddress);
 	        sentPacket.setPort(Config.PORT);
 	        socket.send(sentPacket);
@@ -103,10 +111,18 @@ public class UDPClient2 extends Thread
 	        }
 	        
 	        client1.sendFilesSHA(Files_sha);
-			
-	        message = "#end#";
-	        stringContents = message.getBytes("utf8"); 
-	        
+
+	        } else  {
+	        	message = "#start#"; 
+		        stringContents = message.getBytes("utf8"); 
+		        sentPacket = new DatagramPacket(stringContents, stringContents.length);
+		        sentPacket.setAddress(serverAddress);
+		        sentPacket.setPort(Config.PORT);
+		        socket.send(sentPacket);
+	        } 
+	     
+		    message = "#end#";
+		    stringContents = message.getBytes("utf8"); 
 	        sentPacket = new DatagramPacket(stringContents, stringContents.length);
 	        sentPacket.setAddress(serverAddress);
 	        sentPacket.setPort(Config.PORT);
@@ -139,8 +155,7 @@ public class UDPClient2 extends Thread
 	        clientUI.check();
 	        btn.setEnabled(false);
 	    	// choose the required checksum
-//	        Scanner sc = new Scanner(System.in);
-//	        String checkSum = sc.nextLine();
+
 	        String checkSum = sendString;
 	        txtArea.append("Selected checksum: " + checkSum + "\n");
 	        stringContents = checkSum.getBytes("utf8"); 
@@ -219,14 +234,23 @@ public class UDPClient2 extends Thread
 	              bos.flush(); 
 	              System.out.println("File " + FILE_TO_RECEIVED + " downloaded (" + current + " bytes read)");
 	              txtArea.append("File " + FILE_TO_RECEIVED + " downloaded (" + current + " bytes read)\n");
+	              
+	              String sum_check = new String(Snippet.hashFile(new File(FILE_TO_RECEIVED)));
+	              if (sum_check.equals(checkSum))JOptionPane.showMessageDialog(null, "Received file is correct!");
+	              else JOptionPane.showMessageDialog(null, "Received file is incorrect!", "Error", JOptionPane.ERROR_MESSAGE);
 	            } 
 	            finally { 
+	            	
 	              if (fos != null) fos.close(); 
 	              if (bos != null) bos.close(); 
 	              if (sock != null) sock.close(); 
 	            } 
 	         }
-		}
+	       
+		}catch (IOException ex) {
+			JOptionPane.showMessageDialog(null, "The server is unavailable. Try later",  "Error", JOptionPane.ERROR_MESSAGE);
+			System.exit(0);
+	    }
 		catch(Exception e)
 		{
 			e.printStackTrace();
@@ -235,5 +259,5 @@ public class UDPClient2 extends Thread
 		System.out.println("Goodbye!");
 		txtArea.append("Goodbye!\n");
 	}
-
+	
 }
