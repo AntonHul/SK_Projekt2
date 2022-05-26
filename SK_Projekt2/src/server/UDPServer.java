@@ -183,6 +183,8 @@ public class UDPServer implements Runnable
 		        		}
 		        		catch(SocketTimeoutException e){}
 		        	}
+				else
+					continue;
 		        	
 		        	datagramSocket.setSoTimeout(1000);
 		        	
@@ -237,7 +239,7 @@ public class UDPServer implements Runnable
 				    			datagramSocket.send(response);
 							break;
 				        		}
-				            }
+				            	}
 				        	if (!check_sum)
 				        	{
 				        		byteResponse = "There is no file with such a checksum \n".getBytes("utf8");
