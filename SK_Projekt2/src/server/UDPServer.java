@@ -235,13 +235,15 @@ public class UDPServer implements Runnable
 				    			byteResponse = message.getBytes("utf8");
 				    			response = new DatagramPacket(byteResponse, byteResponse.length, address, port);
 				    			datagramSocket.send(response);
+							break;
 				        		}
 				            }
 				        	if (!check_sum)
 				        	{
 				        		byteResponse = "There is no file with such a checksum \n".getBytes("utf8");
-								response = new DatagramPacket(byteResponse, byteResponse.length, address, port);
-								datagramSocket.send(response);
+							response = new DatagramPacket(byteResponse, byteResponse.length, address, port);
+							datagramSocket.send(response);
+							break;
 				        	}
 	        			}
 	        			catch(SocketTimeoutException e){}
