@@ -20,7 +20,7 @@ import config.Config;
 
 public class UDPServer implements Runnable 
 {
-
+	String message = "#";
 	DatagramSocket datagramSocket;
 	JTextArea txtArea;
 	String serverSumDir = "server/eGoat/sum";//plik do przechowywania sum i ip
@@ -117,7 +117,9 @@ public class UDPServer implements Runnable
 	        	{
 	        		datagramSocket.receive(receivedPacket);
 	        		int length = receivedPacket.getLength();
-		        	String message = new String(receivedPacket.getData(), 0, length, "utf8");
+	        		if(!message.equals("#start#") || message.equals("#") )
+		        	message = new String(receivedPacket.getData(), 0, length, "utf8");
+		        	
 		        	// Port i host ktory wyslal nam zapytanie
 		        	InetAddress address = receivedPacket.getAddress();
 		        	int port = receivedPacket.getPort();
@@ -125,12 +127,12 @@ public class UDPServer implements Runnable
 		        	System.out.print(address.toString());
 	        		System.out.println(" Connected!");
 	        		txtArea.append(address.toString() + " Connected!\n");
-	        		
+	        		System.out.println(message);
 		        	if(message.equals("#start#"))
 		        	{
 		        		try
 		        		{
-		        			datagramSocket.setSoTimeout(10000);
+		        	
 			        		while(serverRunning)
 			        		{
 				        		datagramSocket.receive(receivedPacket);
@@ -140,9 +142,9 @@ public class UDPServer implements Runnable
 				        		address = receivedPacket.getAddress();
 				        		port = receivedPacket.getPort();
 				        		
-				        		if(message.equals("#end#"))
+				        		if(message.equals("#end#")) {
 				        			break;
-				        		
+				        		}
 				        		// check if the checksum has already appeared
 			        			boolean exist = false;
 			        			for (CheckSum compare: sums)
@@ -221,8 +223,6 @@ public class UDPServer implements Runnable
 			        		datagramSocket.receive(receivedPacket);
 			        		length = receivedPacket.getLength();
 			        		message = new String(receivedPacket.getData(), 0, length, "utf8");
-			        		
-			        		// check if such checksum exists
 			        		boolean check_sum = false;
 			        		for (CheckSum compare: sums)
 			        		{
