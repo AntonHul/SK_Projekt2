@@ -58,22 +58,25 @@ public class ClientUI extends JFrame
 	}
 	
 	//metody
-	@SuppressWarnings("deprecation")
-	public void check()
-	{
-		udp2.suspend();
-	}
 	
 	//klasy listenery
 	class BtnListener implements ActionListener
 	{
-		@SuppressWarnings("deprecation")
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
-			udp2.send(txtField.getText());
-			udp2.resume();
-			txtField.setText("");
+			if(txtField.getText().equals("close") || txtField.getText().equals("Close"))
+			{
+				udp2.close();
+				txtField.setText("");
+				sendBtn.setEnabled(true);
+				System.exit(0);
+			}
+			else
+			{
+				udp2.send(txtField.getText());
+				txtField.setText("");
+			}
 		}
 	}
 	

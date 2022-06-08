@@ -131,15 +131,9 @@ public class UDPServer implements Runnable
 	        		System.out.println(" Connected!");
 	        		txtArea.append(address.toString() + " Connected!\n");
 	        		System.out.println(message);
+	        		txtArea.append(address.toString() + ": " + message + "\n");
 		        	if(message.equals("#start#"))
 		        	{
-		        		/*
-		        		for(CheckSum sumy: sums)
-		        		{
-		        			sumy.removeIP(address.toString());
-		        		}
-		        		*/
-		        		
 		        		ArrayList<String> cs = new ArrayList();
 		        		
 		        		try
@@ -240,71 +234,81 @@ public class UDPServer implements Runnable
 		        			boolean successful = tempFile.renameTo(inputFile);
 		        		}
 		        	}
+		        	else if(message.equals("#send#"))
+		        	{
+		        		datagramSocket.setSoTimeout(1000);
+			        	
+		        		String all_files = new String("All available files: \n");
+		        		byte[] byteResponse = all_files.getBytes("utf8");
+		        		DatagramPacket response = new DatagramPacket(byteResponse, byteResponse.length, address, port);
+		        		datagramSocket.send(response);
+		        		
+		        		for (CheckSum file: sums)
+		        		{
+		        			all_files = file.sum + '\n';
+		        			byteResponse = all_files.getBytes("utf8");
+		        			response = new DatagramPacket(byteResponse, byteResponse.length, address, port);
+			        		datagramSocket.send(response);
+		        		}
+		        		
+		        		all_files = "Send checksum of the required file \n\n";
+		        		byteResponse = all_files.getBytes("utf8");
+		        		response = new DatagramPacket(byteResponse, byteResponse.length, address, port);
+		        		datagramSocket.send(response);
+		        		
+		        		all_files = "#CSumEnd#";
+		        		byteResponse = all_files.getBytes("utf8");
+		        		response = new DatagramPacket(byteResponse, byteResponse.length, address, port);
+		        		datagramSocket.send(response);
+		        		
+		        		
+		        		while(serverRunning)
+		        		{
+		        			boolean thisWileRunning = true;
+		        			
+		        			try
+		        			{
+				        		// receive the checksum of a particular file
+				        		receivedPacket = new DatagramPacket(new byte[Config.BUFFER_SIZE], Config.BUFFER_SIZE);
+				        		datagramSocket.receive(receivedPacket);
+				        		length = receivedPacket.getLength();
+				        		message = new String(receivedPacket.getData(), 0, length, "utf8");
+				        		txtArea.append(address.toString() + ": " + message + "\n");
+				        		boolean check_sum = false;
+				        		for (CheckSum compare: sums)
+				        		{
+				        			if (compare.sum.equals(message))
+				        			{
+						    			message = "The following clients have the selected file: \n";
+						    			check_sum = true;
+						    			for (int i = 0; i < compare.ips.size(); i++)
+						    			{
+						    				message += compare.ips.get(i) + '\n';
+						    			}
+						    			byteResponse = message.getBytes("utf8");
+						    			response = new DatagramPacket(byteResponse, byteResponse.length, address, port);
+						    			datagramSocket.send(response);
+						    			thisWileRunning = false;
+						    			break;
+					        		}
+					            }
+					        	if (!check_sum)
+					        	{
+					        		byteResponse = "There is no file with such a checksum \n".getBytes("utf8");
+					        		response = new DatagramPacket(byteResponse, byteResponse.length, address, port);
+					        		datagramSocket.send(response);
+					        		break;
+					        	}
+					        	if(!thisWileRunning)
+					        		break;
+		        			}
+		        			catch(SocketTimeoutException e){}
+		        		}
+		        	}
 		        	else
 		        		continue;
 		        	
 		        	datagramSocket.setSoTimeout(1000);
-		        	
-	        		String all_files = new String("All available files: \n");
-	        		byte[] byteResponse = all_files.getBytes("utf8");
-	        		DatagramPacket response = new DatagramPacket(byteResponse, byteResponse.length, address, port);
-	        		datagramSocket.send(response);
-	        		
-	        		for (CheckSum file: sums)
-	        		{
-	        			all_files = file.sum + '\n';
-	        			byteResponse = all_files.getBytes("utf8");
-	        			response = new DatagramPacket(byteResponse, byteResponse.length, address, port);
-		        		datagramSocket.send(response);
-	        		}
-	        		
-	        		all_files = "Send checksum of the required file \n\n";
-	        		byteResponse = all_files.getBytes("utf8");
-	        		response = new DatagramPacket(byteResponse, byteResponse.length, address, port);
-	        		datagramSocket.send(response);
-	        		
-	        		all_files = "#CSumEnd#";
-	        		byteResponse = all_files.getBytes("utf8");
-	        		response = new DatagramPacket(byteResponse, byteResponse.length, address, port);
-	        		datagramSocket.send(response);
-	        		
-	        		
-	        		while(serverRunning)
-	        		{
-	        			try
-	        			{
-			        		// receive the checksum of a particular file
-			        		receivedPacket = new DatagramPacket(new byte[Config.BUFFER_SIZE], Config.BUFFER_SIZE);
-			        		datagramSocket.receive(receivedPacket);
-			        		length = receivedPacket.getLength();
-			        		message = new String(receivedPacket.getData(), 0, length, "utf8");
-			        		boolean check_sum = false;
-			        		for (CheckSum compare: sums)
-			        		{
-			        			if (compare.sum.equals(message))
-			        			{
-					    			message = "The following clients have the selected file: \n";
-					    			check_sum = true;
-					    			for (int i = 0; i < compare.ips.size(); i++)
-					    			{
-					    				message += compare.ips.get(i) + '\n';
-					    			}
-					    			byteResponse = message.getBytes("utf8");
-					    			response = new DatagramPacket(byteResponse, byteResponse.length, address, port);
-					    			datagramSocket.send(response);
-					    			break;
-				        		}
-				            }
-				        	if (!check_sum)
-				        	{
-				        		byteResponse = "There is no file with such a checksum \n".getBytes("utf8");
-							response = new DatagramPacket(byteResponse, byteResponse.length, address, port);
-							datagramSocket.send(response);
-							break;
-				        	}
-	        			}
-	        			catch(SocketTimeoutException e){}
-	        		}
 		        }
 		        catch(SocketTimeoutException e){}
 			}

@@ -64,6 +64,7 @@ public class UDPClient extends Thread {
 			DatagramSocket datagramSocket;
 			try
 			{
+				System.out.println("TEST1");//TODO remove
 				datagramSocket = new DatagramSocket(SOCKET_PORT);
 				DatagramPacket receivedPacket = new DatagramPacket( new byte[Config.BUFFER_SIZE], Config.BUFFER_SIZE);
 		    	datagramSocket.receive(receivedPacket);
@@ -74,8 +75,11 @@ public class UDPClient extends Thread {
 		    	//sprawdzamy czy mamy taki plik
 		    	for (File_sha file_sha: Files_sha)
 		    	{
+		    		boolean thisForRunning = true;
+		    		
 		    		if (file_sha.sha.equals(message))
 		    		{
+		    			System.out.println("TEST2");//TODO remove
 		    			InetAddress address_send = receivedPacket.getAddress();
 		    			System.out.println("###############################");
 		    			System.out.println("Get request from: ");
@@ -122,14 +126,18 @@ public class UDPClient extends Thread {
 			    	    			os.flush(); 
 			    	    			System.out.println("Done.");
 			    	    			txtArea.append("Done.\n");
+			    	    			
+			    	    			thisForRunning = false;
+			    	    			break;
 			    	    		} 
 			    	    		finally
 			    	    		{ 
 			    	    			if (bis != null) bis.close(); 
 			    	    			if (os != null) os.close(); 
-			    	    			if (sock!=null) sock.close(); 
+			    	    			if (sock!=null) sock.close();
 			    	    		} 
 			    	    	} 
+			    	    	System.out.println("TEST3");//TODO remove
 			    	    }
 			    	    catch (IOException e)
 			    	    {
@@ -146,6 +154,9 @@ public class UDPClient extends Thread {
 									e.printStackTrace();
 								} 
 			    	    }
+			    	    
+			    	    if(!thisForRunning)
+			    	    	break;
 		    		}
 		    	}
 			}	catch(BindException e2) {
@@ -156,6 +167,7 @@ public class UDPClient extends Thread {
 			{
 				e1.printStackTrace();
 			}
+			System.out.println("TEST4");//TODO remove
     	}
     }
 }
