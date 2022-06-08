@@ -39,6 +39,7 @@ public class ClientUI extends JFrame
 		sendBtn.addActionListener(new BtnListener());
 		
 		txtField = new JTextField();
+		txtField.addActionListener(new TFListener());
 		
 		udp1 = new UDPClient(txtArea);
 		udp2 = new UDPClient2(txtArea, sendBtn, this, udp1);
@@ -74,6 +75,16 @@ public class ClientUI extends JFrame
 			udp2.resume();
 			txtField.setText("");
 		}
+	}
+	
+	class TFListener implements ActionListener
+	{
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			sendBtn.doClick();
+		}
+		
 	}
 	
 	//main

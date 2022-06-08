@@ -71,48 +71,53 @@ public class UDPClient2 extends Thread
 	        byte[] stringContents;
 	        DatagramPacket sentPacket;
 	         
-	        if (f.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-	        System.out.println(f.getSelectedFile());
-	        txtArea.append(f.getSelectedFile().toString() + "\n");
-
-	        // save all filenames from the chosen directory
-	        File folder = new File(f.getSelectedFile().toString());
-	        listOfFiles = folder.listFiles();
-	        Files_sha = new ArrayList<File_sha>();
-	        
-	        message = "#start#";
-	        
-	        stringContents = message.getBytes("utf8"); 
-	        
-	        sentPacket = new DatagramPacket(stringContents, stringContents.length);
-	        sentPacket.setAddress(serverAddress);
-	        sentPacket.setPort(Config.PORT);
-	        socket.send(sentPacket);
-	        
-	        for (int i = 0; i < listOfFiles.length; i++) {
-	          if (listOfFiles[i].isFile()) {
-	            System.out.println("File " + listOfFiles[i].getName());
-	            txtArea.append("File " + listOfFiles[i].getName() + "\n");
-	            //calculate the checksum using external lib hash
-	            String st = new String(Snippet.hashFile(listOfFiles[i]));
-	            System.out.println("SHA512 : " + st);
-	            txtArea.append("SHA512 : " + st + "\n");
-	            //send the list of the files to server 
-	            message = st;
-	            Files_sha.add(new File_sha(listOfFiles[i],st));
-	            
-	            stringContents = message.getBytes("utf8"); 
-	            
-	            sentPacket = new DatagramPacket(stringContents, stringContents.length);
-	            sentPacket.setAddress(serverAddress);
-	            sentPacket.setPort(Config.PORT);
-	            socket.send(sentPacket);
-	          }
+	        if (f.showOpenDialog(null) == JFileChooser.APPROVE_OPTION)
+	        {
+		        System.out.println(f.getSelectedFile());
+		        txtArea.append(f.getSelectedFile().toString() + "\n");
+	
+		        // save all filenames from the chosen directory
+		        File folder = new File(f.getSelectedFile().toString());
+		        listOfFiles = folder.listFiles();
+		        Files_sha = new ArrayList<File_sha>();
+		        
+		        message = "#start#";
+		        
+		        stringContents = message.getBytes("utf8"); 
+		        
+		        sentPacket = new DatagramPacket(stringContents, stringContents.length);
+		        sentPacket.setAddress(serverAddress);
+		        sentPacket.setPort(Config.PORT);
+		        socket.send(sentPacket);
+		        
+		        for (int i = 0; i < listOfFiles.length; i++)
+		        {
+					if (listOfFiles[i].isFile())
+					{
+						System.out.println("File " + listOfFiles[i].getName());
+						txtArea.append("File " + listOfFiles[i].getName() + "\n");
+						//calculate the checksum using external lib hash
+						String st = new String(Snippet.hashFile(listOfFiles[i]));
+						System.out.println("SHA512 : " + st);
+						txtArea.append("SHA512 : " + st + "\n");
+						//send the list of the files to server 
+						message = st;
+						Files_sha.add(new File_sha(listOfFiles[i],st));
+						          
+						stringContents = message.getBytes("utf8"); 
+						           
+						sentPacket = new DatagramPacket(stringContents, stringContents.length);
+						sentPacket.setAddress(serverAddress);
+						sentPacket.setPort(Config.PORT);
+						socket.send(sentPacket);
+					}
+		        }
+		        
+		        client1.sendFilesSHA(Files_sha);
+		        
 	        }
-	        
-	        client1.sendFilesSHA(Files_sha);
-
-	        } else  {
+	        else 
+	        {
 	        	message = "#start#"; 
 		        stringContents = message.getBytes("utf8"); 
 		        sentPacket = new DatagramPacket(stringContents, stringContents.length);
