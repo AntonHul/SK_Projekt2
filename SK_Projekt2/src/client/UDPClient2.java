@@ -322,8 +322,11 @@ public class UDPClient2 extends Thread
 				              
 				              System.out.println("TESTcl2-3");//TODO remove
 				              
+				              if (is != null) is.close();
 				              break;
-				            } 
+				            }
+				            catch (IOException ex)
+				        	{}
 				            finally
 				            {
 				              if (fos != null) fos.close(); 
@@ -336,7 +339,7 @@ public class UDPClient2 extends Thread
 	        	catch (IOException ex)
 	        	{
 					JOptionPane.showMessageDialog(null, "The server is unavailable. Try later",  "Error", JOptionPane.ERROR_MESSAGE);
-//					System.exit(0);
+					System.out.println("Error IO 2");//TODO remove
 				}
 				catch(Exception e)
 				{
@@ -347,7 +350,7 @@ public class UDPClient2 extends Thread
 		catch (IOException ex)
     	{
 			JOptionPane.showMessageDialog(null, "The server is unavailable. Try later",  "Error", JOptionPane.ERROR_MESSAGE);
-//			System.exit(0);
+			System.out.println("Error IO 1");//TODO remove
 		}
 		catch(Exception e)
 		{

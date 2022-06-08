@@ -132,6 +132,7 @@ public class UDPClient extends Thread {
 			    	    		} 
 			    	    		finally
 			    	    		{ 
+			    	    			if (fis != null) fis.close();
 			    	    			if (bis != null) bis.close(); 
 			    	    			if (os != null) os.close(); 
 			    	    			if (sock!=null) sock.close();
