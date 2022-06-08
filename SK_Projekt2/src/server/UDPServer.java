@@ -1,7 +1,10 @@
 package server;
 
 import java.awt.Frame;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.BindException;
@@ -130,9 +133,17 @@ public class UDPServer implements Runnable
 	        		System.out.println(message);
 		        	if(message.equals("#start#"))
 		        	{
+		        		/*
+		        		for(CheckSum sumy: sums)
+		        		{
+		        			sumy.removeIP(address.toString());
+		        		}
+		        		*/
+		        		
+		        		ArrayList<String> cs = new ArrayList();
+		        		
 		        		try
 		        		{
-		        	
 			        		while(serverRunning)
 			        		{
 				        		datagramSocket.receive(receivedPacket);
@@ -142,7 +153,8 @@ public class UDPServer implements Runnable
 				        		address = receivedPacket.getAddress();
 				        		port = receivedPacket.getPort();
 				        		
-				        		if(message.equals("#end#")) {
+				        		if(message.equals("#end#"))
+				        		{
 				        			break;
 				        		}
 				        		// check if the checksum has already appeared
@@ -181,12 +193,55 @@ public class UDPServer implements Runnable
 			        				
 			        				exist = false;
 			        			}
+			        			
+			        			cs.add(message);
 				        	}
 		        		}
 		        		catch(SocketTimeoutException e){}
+		        		
+		        		for(CheckSum sumy: sums)
+		        		{
+		        			boolean cont = false;
+		        			
+		        			for(int i = 0; i < cs.size(); i++)
+		        			{
+		        				if(sumy.sum.equals(cs.get(i)))
+		        				{
+		        					cont = true;
+		        					cs.remove(i);
+		        					break;
+		        				}
+		        			}
+		        			if(cont)
+		        				continue;
+		        			
+		        			//usuwanie ip z sum ktorych dany adress ip juz nie posiada
+		        			sumy.removeIP(address.toString());
+		        			
+		        			String filePath = (serverSumDir + "/" + sumy.sum);
+		        			File inputFile = new File(filePath);
+		        			File tempFile = new File(serverSumDir + "/tempFile.txt");
+
+		        			BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+		        			BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
+
+		        			String lineToRemove = address.toString();
+		        			String currentLine;
+
+		        			while((currentLine = reader.readLine()) != null)
+		        			{
+			        			String trimmedLine = currentLine.trim();
+			        			if(trimmedLine.equals(lineToRemove))
+			        				continue;
+			        			writer.write(currentLine + '\n');
+		        			}
+		        			writer.close(); 
+		        			reader.close(); 
+		        			boolean successful = tempFile.renameTo(inputFile);
+		        		}
 		        	}
-				else
-					continue;
+		        	else
+		        		continue;
 		        	
 		        	datagramSocket.setSoTimeout(1000);
 		        	
@@ -234,12 +289,12 @@ public class UDPServer implements Runnable
 					    			{
 					    				message += compare.ips.get(i) + '\n';
 					    			}
-				    			byteResponse = message.getBytes("utf8");
-				    			response = new DatagramPacket(byteResponse, byteResponse.length, address, port);
-				    			datagramSocket.send(response);
-							break;
+					    			byteResponse = message.getBytes("utf8");
+					    			response = new DatagramPacket(byteResponse, byteResponse.length, address, port);
+					    			datagramSocket.send(response);
+					    			break;
 				        		}
-				            	}
+				            }
 				        	if (!check_sum)
 				        	{
 				        		byteResponse = "There is no file with such a checksum \n".getBytes("utf8");
@@ -255,7 +310,8 @@ public class UDPServer implements Runnable
 			}
 			datagramSocket.close();
 		}
-		catch(BindException e2) {
+		catch(BindException e2)
+		{
 			JOptionPane.showMessageDialog(null, "The server is already running",  "Error", JOptionPane.ERROR_MESSAGE);
 			System.exit(0);
 		}

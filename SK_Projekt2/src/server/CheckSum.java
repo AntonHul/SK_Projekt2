@@ -14,7 +14,7 @@ public class CheckSum
 	String sum;
 	ArrayList<String> ips = new ArrayList<String>();
 	
-	boolean compareIPs (String ip)
+	boolean compareIPs (String ip)//returns true if this ip has this CS
 	{
 		boolean exist = false;
 		
@@ -28,5 +28,38 @@ public class CheckSum
 		}
 		
 		return exist;
+	}
+	
+	int findIP (String ip)//returns where ip is stored in ArryList, if this ip is not stored returns -1
+	{
+		int index = -1;
+		
+		for(int i = 0; i < ips.size(); i++)
+		{
+			if(ips.get(i).equals(ip))
+			{
+				index = i;
+				break;
+			}
+		}
+		
+		return index;
+	}
+	
+	boolean removeIP (String ip)//removes ip from ArrayList
+	{
+		boolean removed = false;
+		
+		for(int i = 0; i < ips.size(); i++)
+		{
+			if(ips.get(i).equals(ip))
+			{
+				ips.remove(i);
+				removed = true;
+				break;
+			}
+		}
+		
+		return removed;
 	}
 }
