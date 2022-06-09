@@ -260,51 +260,42 @@ public class UDPServer implements Runnable
 		        		byteResponse = all_files.getBytes("utf8");
 		        		response = new DatagramPacket(byteResponse, byteResponse.length, address, port);
 		        		datagramSocket.send(response);
-		        		
-		        		
-		        		while(serverRunning)
-		        		{
-		        			boolean thisWileRunning = true;
-		        			
-		        			try
-		        			{
-				        		// receive the checksum of a particular file
-				        		receivedPacket = new DatagramPacket(new byte[Config.BUFFER_SIZE], Config.BUFFER_SIZE);
-				        		datagramSocket.receive(receivedPacket);
-				        		length = receivedPacket.getLength();
-				        		message = new String(receivedPacket.getData(), 0, length, "utf8");
-				        		txtArea.append(address.toString() + ": " + message + "\n");
-				        		boolean check_sum = false;
-				        		for (CheckSum compare: sums)
-				        		{
-				        			if (compare.sum.equals(message))
-				        			{
-						    			message = "The following clients have the selected file: \n";
-						    			check_sum = true;
-						    			for (int i = 0; i < compare.ips.size(); i++)
-						    			{
-						    				message += compare.ips.get(i) + '\n';
-						    			}
-						    			byteResponse = message.getBytes("utf8");
-						    			response = new DatagramPacket(byteResponse, byteResponse.length, address, port);
-						    			datagramSocket.send(response);
-						    			thisWileRunning = false;
-						    			break;
-					        		}
-					            }
-					        	if (!check_sum)
-					        	{
-					        		byteResponse = "There is no file with such a checksum \n".getBytes("utf8");
-					        		response = new DatagramPacket(byteResponse, byteResponse.length, address, port);
-					        		datagramSocket.send(response);
-					        		break;
-					        	}
-					        	if(!thisWileRunning)
-					        		break;
-		        			}
-		        			catch(SocketTimeoutException e){}
-		        		}
 		        	}
+				else if(message.equals("#sendIP#"))
+				{
+					try
+		        		{
+				        	// receive the checksum of a particular file
+				        	receivedPacket = new DatagramPacket(new byte[Config.BUFFER_SIZE], Config.BUFFER_SIZE);
+				        	datagramSocket.receive(receivedPacket);
+				        	length = receivedPacket.getLength();
+				        	message = new String(receivedPacket.getData(), 0, length, "utf8");
+				        	txtArea.append(address.toString() + ": " + message + "\n");
+				        	boolean check_sum = false;
+				        	for (CheckSum compare: sums)
+				        	{
+				        		if (compare.sum.equals(message))
+				        		{
+					    			message = "The following clients have the selected file: \n";
+					    			check_sum = true;
+					    			for (int i = 0; i < compare.ips.size(); i++)
+					    			{
+					    				message += compare.ips.get(i) + '\n';
+					    			}
+					    			byte[] byteResponse = message.getBytes("utf8");
+					    			DatagramPacket response = new DatagramPacket(byteResponse, byteResponse.length, address, port);
+					    			datagramSocket.send(response);
+					       		}
+					        }
+					       	if (!check_sum)
+					       	{
+					       		byte[] byteResponse = "There is no file with such a checksum \n".getBytes("utf8");
+					       		DatagramPacket response = new DatagramPacket(byteResponse, byteResponse.length, address, port);
+					       		datagramSocket.send(response);
+					       	}
+		        		}
+		        		catch(SocketTimeoutException e){}
+				}
 		        	else
 		        		continue;
 		        	
