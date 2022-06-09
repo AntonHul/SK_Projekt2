@@ -2,7 +2,6 @@ package client;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -62,11 +61,18 @@ public class UDPClient2 extends Thread
 		wait = false;
 	}
 	
+	private void dispMessage(String s)
+	{
+		System.out.print(s);
+        txtArea.append(s);
+        txtArea.setCaretPosition(txtArea.getDocument().getLength());
+	}
+	
 	public void run()
 	{
 		try
 		{
-			txtArea.append("Welcome to eGoat!\n\n");
+			dispMessage("Welcome to eGoat!\n\n");
 			btn.setEnabled(false);
 			InetAddress serverAddress = InetAddress.getByName("localhost");
 	
@@ -84,8 +90,7 @@ public class UDPClient2 extends Thread
 	         
 	        if (f.showOpenDialog(null) == JFileChooser.APPROVE_OPTION)
 	        {
-		        System.out.println(f.getSelectedFile());
-		        txtArea.append(f.getSelectedFile().toString() + "\n");
+	        	dispMessage(f.getSelectedFile().toString());
 	
 		        // save all filenames from the chosen directory
 		        File folder = new File(f.getSelectedFile().toString());
@@ -105,12 +110,10 @@ public class UDPClient2 extends Thread
 		        {
 					if (listOfFiles[i].isFile())
 					{
-						System.out.println("File " + listOfFiles[i].getName());
-						txtArea.append("File " + listOfFiles[i].getName() + "\n");
+						dispMessage("File " + listOfFiles[i].getName() + "\n");
 						//calculate the checksum using external lib hash
 						String st = new String(Snippet.hashFile(listOfFiles[i]));
-						System.out.println("SHA512 : " + st);
-						txtArea.append("SHA512 : " + st + "\n");
+						dispMessage("SHA512 : " + st + "\n");
 						//send the list of the files to server 
 						message = st;
 						Files_sha.add(new File_sha(listOfFiles[i],st));
@@ -144,17 +147,14 @@ public class UDPClient2 extends Thread
 	        sentPacket.setPort(Config.PORT);
 	        socket.send(sentPacket);
 	        
-	        System.out.print("Files send to server!\n");
-	        txtArea.append("Files send to server!\n");
+	        dispMessage("Files send to server!");
 	        
 	        while(clientRunning)
 	        {
 	        	try
 	        	{
-			        System.out.print("To download a file type \"Download\"\n");
-			        txtArea.append("To download a file type \"Download\"\n");
-			        System.out.print("To close a client type \"Close\"\n");
-			        txtArea.append("To close a client type \"Close\"\n");
+			        dispMessage("To download a file type \"Download\"\n");
+			        dispMessage("To close a client type \"Close\"\n");
 			        while(clientRunning)
 			        {
 			        	btn.setEnabled(true);
@@ -173,8 +173,7 @@ public class UDPClient2 extends Thread
 				        	break;
 				        else
 				        {
-				        	System.out.print("Unknown command!\n");
-				        	txtArea.append("Unknown command!\n");
+				        	dispMessage("Unknown command!\n");
 				        }
 			        }
 			        if(!clientRunning)
@@ -191,8 +190,7 @@ public class UDPClient2 extends Thread
 			        socket.receive(recievePacket);
 			        int length = recievePacket.getLength();
 			    	message = new String(recievePacket.getData(), 0, length, "utf8");
-			    	System.out.print(message);
-			    	txtArea.append("\n" + message + "\n");
+			    	dispMessage("\n" + message + "\n");
 			        
 			        // receive the list of the checksums
 			        while(clientRunning)
@@ -205,8 +203,7 @@ public class UDPClient2 extends Thread
 				    		break;
 				    	else
 				    	{
-				    		System.out.print(message);
-				    		txtArea.append(message);
+				    		dispMessage(message);
 				    	}
 			        }
 			        if(!clientRunning)
@@ -224,7 +221,7 @@ public class UDPClient2 extends Thread
 			    	// choose the required checksum
 		
 			        String checkSum = sendString;
-			        txtArea.append("Selected checksum: " + checkSum + "\n");
+			        dispMessage("Selected checksum: " + checkSum + "\n");
 			        stringContents = checkSum.getBytes("utf8"); 
 			        sentPacket = new DatagramPacket(stringContents, stringContents.length);
 			        sentPacket.setAddress(serverAddress);
@@ -236,20 +233,17 @@ public class UDPClient2 extends Thread
 			        socket.receive(recievePacket);
 			        length = recievePacket.getLength();
 			        message = new String(recievePacket.getData(), 0, length, "utf8");
-			        System.out.print(message); 
-			        txtArea.append(message + "\n");
+			        dispMessage(message + "\n");
 			        
 			        if (message.equals("There is no file with such a checksum \n"))
 			        {
-			        	System.out.println("Try again ...");
-			        	txtArea.append("Try again ...\n");
+			        	dispMessage("Try again ...\n");
 			        } 
 			        else
 			        {
 			            // send the required checksum to the selected ip and port 
 			            // in order to download it
-			        	System.out.println("Enter the IP address of the user from whom you want to get the selected file: "); 
-			        	txtArea.append("Enter the IP address of the user from whom you want to get the selected file: ");
+			        	dispMessage("Enter the IP address of the user from whom you want to get the selected file: ");
 			        	
 			        	btn.setEnabled(true);
 			        	wait = true;
@@ -261,22 +255,10 @@ public class UDPClient2 extends Thread
 				        }
 			        	btn.setEnabled(false);
 			        	String ip = sendString;
-			        	txtArea.append(ip + "\n");
+			        	dispMessage(ip + "\n");
 			        	serverAddress = InetAddress.getByName(ip);
-			            System.out.println("Enter the checksum of the file you want to get: ");
-			            txtArea.append("Enter the checksum of the file you want to get: ");
-			            
-			            btn.setEnabled(true);
-			            wait = true;
-				        while(wait)
-				        {
-				        	this.sleep(10);
-				        	if(!wait)
-				        		break;
-				        }
-			            btn.setEnabled(false);
-			            stringContents = sendString.getBytes("utf8");
-			            txtArea.append(sendString + "\n");
+			        	sleep(10);
+			            stringContents = checkSum.getBytes("utf8");
 			            sentPacket = new DatagramPacket(stringContents, stringContents.length);
 			            sentPacket.setAddress(serverAddress);
 			            sentPacket.setPort(Integer.valueOf(SOCKET_PORT));
@@ -290,10 +272,8 @@ public class UDPClient2 extends Thread
 			            while(clientRunning)
 			            {
 				            try { 
-				            	System.out.println("TESTcl2-1");//TODO remove
 				              sock = new Socket(SERVER, SOCKET_PORT); 
-				              System.out.println("Connecting...");
-				              txtArea.append("Connecting...\n");
+				              dispMessage("Connecting...\n");
 				         
 				              // receive file 
 				              byte [] mybytearray  = new byte [FILE_SIZE]; 
@@ -302,8 +282,6 @@ public class UDPClient2 extends Thread
 				              bos = new BufferedOutputStream(fos); 
 				              bytesRead = is.read(mybytearray,0,mybytearray.length); 
 				              current = bytesRead; 
-				              
-				              System.out.println("TESTcl2-2");//TODO remove
 				         
 				              do { 
 				                 bytesRead = 
@@ -313,14 +291,11 @@ public class UDPClient2 extends Thread
 				         
 				              bos.write(mybytearray, 0 , current); 
 				              bos.flush(); 
-				              System.out.println("File " + FILE_TO_RECEIVED + " downloaded (" + current + " bytes read)");
-				              txtArea.append("File " + FILE_TO_RECEIVED + " downloaded (" + current + " bytes read)\n");
+				              dispMessage("File " + FILE_TO_RECEIVED + " downloaded (" + current + " bytes read)\n");
 				              
 				              String sum_check = new String(Snippet.hashFile(new File(FILE_TO_RECEIVED)));
 				              if (sum_check.equals(checkSum))JOptionPane.showMessageDialog(null, "Received file is correct!");
 				              else JOptionPane.showMessageDialog(null, "Received file is incorrect!", "Error", JOptionPane.ERROR_MESSAGE);
-				              
-				              System.out.println("TESTcl2-3");//TODO remove
 				              
 				              if (is != null) is.close();
 				              break;
@@ -339,7 +314,7 @@ public class UDPClient2 extends Thread
 	        	catch (IOException ex)
 	        	{
 					JOptionPane.showMessageDialog(null, "The server is unavailable. Try later",  "Error", JOptionPane.ERROR_MESSAGE);
-					System.out.println("Error IO 2");//TODO remove
+					System.out.println("Error IO 2");
 				}
 				catch(Exception e)
 				{
@@ -350,15 +325,14 @@ public class UDPClient2 extends Thread
 		catch (IOException ex)
     	{
 			JOptionPane.showMessageDialog(null, "The server is unavailable. Try later",  "Error", JOptionPane.ERROR_MESSAGE);
-			System.out.println("Error IO 1");//TODO remove
+			System.out.println("Error IO 1");
 		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
 		}
 		
-		System.out.println("Goodbye!");
-		txtArea.append("Goodbye!\n");
+		dispMessage("Goodbye!\n");
 	}
 	
 }
