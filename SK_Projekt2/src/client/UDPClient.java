@@ -64,7 +64,6 @@ public class UDPClient extends Thread {
 			DatagramSocket datagramSocket;
 			try
 			{
-				System.out.println("TEST1");//TODO remove
 				datagramSocket = new DatagramSocket(SOCKET_PORT);
 				DatagramPacket receivedPacket = new DatagramPacket( new byte[Config.BUFFER_SIZE], Config.BUFFER_SIZE);
 		    	datagramSocket.receive(receivedPacket);
@@ -79,7 +78,6 @@ public class UDPClient extends Thread {
 		    		
 		    		if (file_sha.sha.equals(message))
 		    		{
-		    			System.out.println("TEST2");//TODO remove
 		    			InetAddress address_send = receivedPacket.getAddress();
 		    			System.out.println("###############################");
 		    			System.out.println("Get request from: ");
@@ -138,11 +136,9 @@ public class UDPClient extends Thread {
 			    	    			if (sock!=null) sock.close();
 			    	    		} 
 			    	    	} 
-			    	    	System.out.println("TEST3");//TODO remove
 			    	    }
 			    	    catch (IOException e)
 			    	    {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						} 
 			    	    finally
@@ -151,7 +147,6 @@ public class UDPClient extends Thread {
 								try {
 									servsock.close();
 								} catch (IOException e) {
-									// TODO Auto-generated catch block
 									e.printStackTrace();
 								} 
 			    	    }
@@ -168,7 +163,6 @@ public class UDPClient extends Thread {
 			{
 				e1.printStackTrace();
 			}
-			System.out.println("TEST4");//TODO remove
     	}
     }
 }
