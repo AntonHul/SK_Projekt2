@@ -222,6 +222,14 @@ public class UDPClient2 extends Thread
 		
 			        String checkSum = sendString;
 			        dispMessage("Selected checksum: " + checkSum + "\n");
+				
+				message = "#sendIP#";
+				    stringContents = message.getBytes("utf8"); 
+			        sentPacket = new DatagramPacket(stringContents, stringContents.length);
+			        sentPacket.setAddress(serverAddress);
+			        sentPacket.setPort(Config.PORT);
+			        socket.send(sentPacket);
+				
 			        stringContents = checkSum.getBytes("utf8"); 
 			        sentPacket = new DatagramPacket(stringContents, stringContents.length);
 			        sentPacket.setAddress(serverAddress);
